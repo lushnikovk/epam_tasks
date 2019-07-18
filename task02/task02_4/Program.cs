@@ -3,8 +3,7 @@ using System.Linq;
 
 namespace task02_4
 {
-    class Program
-    {
+
         class MyString
         {
             private char[] str;
@@ -114,6 +113,8 @@ namespace task02_4
                 return this;
             }
         }
+    class Program
+    {
 
         static void Main(string[] args)
         {

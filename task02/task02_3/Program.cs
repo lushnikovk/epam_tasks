@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Linq;
 
 namespace task02_3
 {
-    class Program
-    {
-        class User
+  
+      public class User
         {
             private string Firstname,Lastname,Patronymic;
 
@@ -68,6 +66,8 @@ namespace task02_3
             }
 
         }
+    class Program
+    {
         static void Main(string[] args)
         {
 

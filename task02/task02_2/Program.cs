@@ -3,8 +3,7 @@
 
 namespace task02_2
 {
-    class Program
-    {
+   
         class Triangle
         {
             private double A, B, C;
@@ -72,6 +71,8 @@ namespace task02_2
                 }
             }
         }
+    class Program
+    {
         static void Main(string[] args)
         {
 
