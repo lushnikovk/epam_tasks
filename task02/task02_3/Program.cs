@@ -1,8 +1,7 @@
 ﻿using System;
-
+using task02_3;
 namespace task02_3
 {
-  
       public class User
         {
             private string Firstname,Lastname,Patronymic;
