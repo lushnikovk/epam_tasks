@@ -22,7 +22,7 @@ namespace task02_7
 
         }
 
-        public virtual double LengthLine
+        public double LengthLine
         {
             get
             {
