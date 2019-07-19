@@ -22,7 +22,7 @@ namespace task02_7
 
         }
 
-        public double LengthLine
+        public virtual double LengthLine
         {
             get
             {
@@ -36,26 +36,17 @@ namespace task02_7
     /// </summary>
     class Rectangle : Line
     {
-
         public Rectangle(double x1, double y1, double x2, double y2) : base(x1, y1, x2, y2)
         {
+ 
+        }
+     
+        public double LengthSide (double x1, double y1, double x2, double y2) 
+        {        
+                return Math.Sqrt(((x2 - x1) * (x2 - x1) + ((y2 - y1) * (y2 - y1))));
 
         }
 
-        public double A
-        {
-            get
-            {
-                return LengthLine;
-            }
-        }
-        public double B
-        {
-            get
-            {
-                return LengthLine;
-            }
-        }
 
     }
     class Circle : Round
@@ -122,20 +113,28 @@ namespace task02_7
     }
     class DrawableRectangle : Rectangle, IDrawable
     {
-        public DrawableRectangle(double x1, double y1, double x2, double y2) : base(x1, y1, x2, y2)
+         private double x1, y1, x2, y2, X1, Y1, X2, Y2;
+        public DrawableRectangle(double x1, double y1, double x2, double y2, double X1, double Y1, double X2, double Y2) : base(x1, y1, x2, y2)
         {
-
+            this.x1 = x1;
+            this.x2 = x2;
+            this.y1 = y1;
+            this.y2 = y2;
+            this.X1 = X1;
+            this.X2 = X2;
+            this.Y1 = Y1;
+            this.Y2 = Y2;
         }
         public void Draw()
         {
-            Console.WriteLine("Длина стороны A= " + A);
-            Console.WriteLine("Длина стороны B= " + B);
-            Console.WriteLine("Периметр прямоугольника " + 2 * (A + B));
-            Console.WriteLine("Площадь прямоугольника " + A * B);
+            Console.WriteLine("Длина стороны A= " + LengthSide(x1, y1, x2, y2));
+            Console.WriteLine("Длина стороны B= " + LengthSide(X1, Y1, X2, Y2));
+            Console.WriteLine("Периметр прямоугольника " + 2 * (LengthSide(x1, y1, x2, y2) + LengthSide(X1, Y1, X2, Y2)));
+            Console.WriteLine("Площадь прямоугольника " + LengthSide(x1, y1, x2, y2) * LengthSide(X1, Y1, X2, Y2));
 
         }
     }
-    
+
 
 
     class program
@@ -175,6 +174,7 @@ namespace task02_7
                             throw new ArgumentException("Данные введены неккоректно!");
                         }
                         DrawableLine line = new DrawableLine(x1, y1, x2, y2);
+                        line.Draw();
                         break;
                     case 2:
                         Console.WriteLine("введите координату центра ");
@@ -194,6 +194,7 @@ namespace task02_7
                             throw new ArgumentException("Данные введены неккоректно!");
                         }
                         DrawableRound round = new DrawableRound(x1, y1, r);
+                        round.Draw();
                         break;
                     case 3:
                         Console.WriteLine("введите координату центра ");
@@ -213,6 +214,7 @@ namespace task02_7
                             throw new ArgumentException("Данные введены неккоректно!");
                         }
                         DrawableRound circle = new DrawableRound(x1, y1, r);
+                        circle.Draw();
                         break;
                     case 4:
                         Console.WriteLine("введите координату центра ");
@@ -237,15 +239,65 @@ namespace task02_7
                             throw new ArgumentException("Данные введены неккоректно!");
                         }
                         DrawableRing ring = new DrawableRing(x1, y1, r1, r2);
+                        ring.Draw();
                         break;
                     case 5:
-                        //DrawableRectangle rectangle = new DrawableRectangle(5, 6, 2, 2);
+                        Console.WriteLine("Введите координаты стороны А");
+                        Console.WriteLine("x1 = ");
+                        if (!double.TryParse(Console.ReadLine(), out x1))
+                        {
+                            throw new ArgumentException("Данные введены неккоректно!");
+                        }
+                        Console.WriteLine("y1 = ");
+                        if (!double.TryParse(Console.ReadLine(), out y1))
+                        {
+                            throw new ArgumentException("Данные введены неккоректно!");
+                        }
+                        Console.WriteLine("x2 = ");
+                        if (!double.TryParse(Console.ReadLine(), out x2))
+                        {
+                            throw new ArgumentException("Данные введены неккоректно!");
+                        }
+                        Console.WriteLine("y2 = ");
+                        if (!double.TryParse(Console.ReadLine(), out y2))
+                        {
+                            throw new ArgumentException("Данные введены неккоректно!");
+
+                        }
+                        Console.WriteLine("Введите координаты стороны B");
+                        Console.WriteLine("x1 = ");
+                        if (!double.TryParse(Console.ReadLine(), out double X1))
+                        {
+                            throw new ArgumentException("Данные введены неккоректно!");
+                        }
+                        Console.WriteLine("y1 = ");
+                        if (!double.TryParse(Console.ReadLine(), out double Y1))
+                        {
+                            throw new ArgumentException("Данные введены неккоректно!");
+                        }
+                        Console.WriteLine("x2 = ");
+                        if (!double.TryParse(Console.ReadLine(), out double X2))
+                        {
+                            throw new ArgumentException("Данные введены неккоректно!");
+                        }
+                        Console.WriteLine("y2 = ");
+                        if (!double.TryParse(Console.ReadLine(), out double Y2))
+                        {
+                            throw new ArgumentException("Данные введены неккоректно!");
+
+                        }
+                        DrawableRectangle rectangle = new DrawableRectangle(x1, y1, x2, y2, X1, Y1, X2, Y2);
+                        rectangle.Draw();
                         break;
 
                 }
 
+
+
+
                 Console.ReadKey();
             }
+
         }
     }
 }
