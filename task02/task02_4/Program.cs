@@ -125,10 +125,10 @@ namespace task02_4
             Console.WriteLine("Создадим объект через строку, введите её");
             var myString2 =  new MyString(Console.ReadLine());
             Console.WriteLine("MyString2: " + myString2);
-            Console.WriteLine(" 1 - конкатенация \n  2 - Сортировка \n 3 -  поиск символа \n 4 - сравнение строк \n  5 - длина массива ");
+            Console.WriteLine(" 1 - конкатенация \n 2 - Сортировка \n 3 -  поиск символа \n 4 - сравнение строк \n 5 - длина массива ");
             while (true)
             {
-                Console.WriteLine("выберете действие");
+                
                 Console.WriteLine("введите число ");
                 int n = int.Parse(Console.ReadLine());
                

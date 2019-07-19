@@ -1,13 +1,18 @@
 ﻿using System;
 using task02_1;
 
+
 namespace task02_6
 {
-    class Ring: Round
+
+    public class Ring: Round
     {
+       // public Point Center { get; set; }
         private double innerRadius;
-        public Ring (double x, double y,double Radius,double InnerRadius) :base(x,y,Radius)
+        public Ring (double x,double y,double Radius,double InnerRadius) :base(new Point(x,y),Radius)
+
         {
+            this.Center = Center;
             this.InnerRadius = InnerRadius;
         }
         public double InnerRadius
@@ -24,6 +29,8 @@ namespace task02_6
                     throw new ArgumentException("Данные введены неккоректно! Внутренний радиус не может быть меньше или равен нулю, а так же больше внутреннего радиуса");
             }
         }
+        //public Point x { get; set; }
+        //public Point y { get; set; }
         public double InnerLength
         {
             get => 2 * Math.PI * innerRadius;
@@ -74,7 +81,7 @@ namespace task02_6
                 throw new ArgumentException("Данные введены неккоректно!");
             }
             Ring ring = new Ring(x, y, outRadius, innerRadius);
-            Console.WriteLine($"Координаты центра Кольца: x = {ring.x}, y={ring.y}");
+            Console.WriteLine($"Координаты центра Кольца: x = {ring.Center.x}, y={ring.Center.y}");
             Console.WriteLine("Суммарная длина внешней и внутренней окружностей равна: " + ring.SumLength);
             Console.WriteLine("Площадь кольца равна: " + ring.RingArea);
             Console.ReadKey();
