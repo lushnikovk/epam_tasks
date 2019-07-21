@@ -40,7 +40,7 @@ namespace task01_2_3_4
             {
                 for (int i = 0; i <= x; i++)
                 {
-                    for (int j = 0; j <=n; j++)
+                    for (int j = 0; j <n+i; j++)
                     {
                         if (j <= n - i)
                             Console.Write(' ');
