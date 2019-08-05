@@ -1,17 +1,11 @@
 ﻿using System;
-using task02_1;
-using task02_6;
+//using task02_1;
+//using task02_6;
 
 namespace task02_7
 {
-    public interface IDrawable
-    {
-        void Draw();
-    }
-
     class Line
     {
-
         public Point First { get; set; }
         public Point Second { get; set; }
         private double X1, X2, Y1, Y2;
@@ -142,7 +136,7 @@ namespace task02_7
 
         static void Main(string[] args)
         {
-            Console.WriteLine(" Выберите объект, который хотитет построить\n 1 - Линия \n 2 - Круг \n 3 -  Окружность \n 4 - Кольцо\n 5 - Прямоугольник ");
+            Console.WriteLine(" Выберите объект, который хотитет построить\n 1 - Линия \n 2 - Круг \n 3 -  Окружность \n 4 - Кольцо\n 5 - Прямоугольник\n Выход из программы ");
             while (true)
             {
 
@@ -289,6 +283,10 @@ namespace task02_7
                         DrawableRectangle rectangle = new DrawableRectangle(x1, y1, x2, y2, X1, Y1, X2, Y2);
                         rectangle.Draw();
                         break;
+                    default:
+                        Console.WriteLine("Данные введены неккоректно!");
+                        break;
+                    
 
                 }
 

@@ -1,5 +1,5 @@
 ﻿using System;
-using task02_1;
+
 
 
 namespace task02_6
