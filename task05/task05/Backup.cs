@@ -11,207 +11,66 @@ namespace task05
 {
     class Backup
     {
-        readonly string backupPath;
-        readonly string storagePath;
+        private readonly string backupPath;
+        private readonly string storagePath;
+        public DateTime datetime { get; set; }
         private DirectoryInfo backupDir;
         private DirectoryInfo storageDir;
-
-        public Backup()
+        private bool TryGetDateTime(string dateTimeBackup, out DateTime result)
         {
-            backupPath = $@"{Environment.CurrentDirectory}\Backup";
+            return DateTime.TryParseExact(dateTimeBackup, "yyyy.MM.dd-HH.mm.ss", null, DateTimeStyles.None, out result);
+        }
+        public Backup()
+        {   
             storagePath = $@"{Environment.CurrentDirectory}\Storage";
-
+            backupPath = $@"{Environment.CurrentDirectory}\Backup";
             backupDir = new DirectoryInfo(backupPath);
             storageDir = new DirectoryInfo(storagePath);
         }
-
         public Backup(string backupPath, string storagePath)
         {
-            this.backupPath = backupPath;
             this.storagePath = storagePath;
-
+            this.backupPath = backupPath;
             backupDir = new DirectoryInfo(backupPath);
             storageDir = new DirectoryInfo(storagePath);
         }
-
-        public DateTime DateTime { get; set; }
-
-        public void Run()
+        public void Recoil()
         {
-            FileInfo[] storageFInfo = storageDir.GetFiles("*.txt", SearchOption.AllDirectories);
-
-            foreach (FileInfo sFile in storageFInfo)
+            FileInfo[] storageInfo = storageDir.GetFiles("*.txt", SearchOption.AllDirectories);
+            foreach (FileInfo file in storageInfo)
             {
-                FindBackupFile(sFile);
-            }
-
-            FindRemoveFiles();
-        }
-
-        private void FindBackupFile(FileInfo sFile)
-        {
-            string directoryName;
-            string nameFileFolder = Path.GetFileNameWithoutExtension(sFile.Name);
-
-            if (sFile.DirectoryName != storageDir.FullName)
-            {
-                string nameFileSubFolders = sFile.Directory.FullName.Replace(storagePath, backupPath);
-                directoryName = Path.Combine(nameFileSubFolders, nameFileFolder);
-            }
-            else
-            {
-                directoryName = Path.Combine(backupPath, nameFileFolder);
-            }
-
-            FileInfo[] bFiles = backupDir.GetFiles("*.txt", SearchOption.AllDirectories)
-                                         .Where(x => x.DirectoryName == directoryName)
-                                         .OrderByDescending(x => x.Name)
-                                         .ToArray();
-
-            foreach (FileInfo bFile in bFiles)
-            {
-                string temp = bFile.Name.Substring(0, bFile.Name.LastIndexOf('-'));
-                bool isParse = DateTime.TryParseExact(temp,
-                                       "yyyy.MM.dd-HH.mm.ss",
-                                       null,
-                                       DateTimeStyles.None,
-                                       out DateTime date);
-
-                if (isParse)
+                string nameDir;
+                string nameFolder = Path.GetFileNameWithoutExtension(file.Name);
+                if (file.DirectoryName != storageDir.FullName)
                 {
-                    if (date <= DateTime)
-                    {
-
-                        temp = File.ReadAllText(bFile.FullName);
-                        File.WriteAllText(sFile.FullName, temp);
-
-                        // extract name from backup file.
-                        temp = Path.GetFileNameWithoutExtension(bFile.Name);
-                        temp = temp.Substring(temp.LastIndexOf('-') + 1);
-
-                        directoryName
-                            = Path.Combine(bFile.Directory.Parent.FullName, temp);
-
-                        if (bFile.DirectoryName != directoryName)
-                            Directory.Move(bFile.DirectoryName, directoryName);
-
-                        temp = Path.Combine(sFile.DirectoryName, $"{temp}{bFile.Extension}");
-                        sFile.MoveTo(temp);
-                        break;
-                    }
+                    string nameFileSubFolders = file.DirectoryName.Replace(storagePath, backupPath);
+                    nameDir = Path.Combine(nameFileSubFolders, nameFolder);
                 }
-            }
-        }
-
-        private void FindRemoveFiles()
-        {
-            List<string> lastViewDirectories = new List<string>();
-            DirectoryInfo dInfo;
-
-            do
-            {
-                dInfo = backupDir.GetDirectories("*", SearchOption.AllDirectories)
-                                    .OrderBy(x => x.FullName).FirstOrDefault(x =>
-                                    {
-                                        foreach (var item in lastViewDirectories)
-                                        {
-                                            if (x.FullName == item)
-                                                return false;
-                                        }
-                                        return true;
-                                    });
-
-                if (dInfo != null)
-                    lastViewDirectories.Add(dInfo.FullName);
-
-                if (dInfo != null)
+                else
                 {
-                    string str = dInfo.Name.Substring(1, dInfo.Name.LastIndexOf('_') - 1);
-
-                    if (DateTime.TryParseExact(str, "yyyy.MM.dd-HH.mm.ss", null, DateTimeStyles.None, out DateTime dtRIP))
-                    {
-                        if (dtRIP >= DateTime)
+                    nameDir = Path.Combine(backupPath, nameFolder);
+                }
+                FileInfo[] backupInfo = backupDir.GetFiles("*.txt", SearchOption.AllDirectories) .Where(x => x.DirectoryName == nameDir).OrderByDescending(x => x.Name).ToArray();
+                foreach (FileInfo backupFile in backupInfo)
+                {
+                    var strDateOfVersion = backupFile.Name.Substring(0, backupFile.Name.LastIndexOf('-'));
+                    if (TryGetDateTime(strDateOfVersion, out DateTime date))
+                        if (date.Date <= datetime.Date)
                         {
-                            if (!dInfo.GetFiles("*.txt").Any())
+                            string text = File.ReadAllText(backupFile.FullName);
+                            File.WriteAllText(file.FullName, text);
+                            string name = backupFile.Name.Substring(backupFile.Name.LastIndexOf('-') + 2);
+                            nameDir = $@"{ backupFile.Directory.Parent.FullName}\{name.Substring(0, name.LastIndexOf('.'))}";
+
+                            if (backupFile.DirectoryName != nameDir)
                             {
-                                str = dInfo.Name.Substring(dInfo.Name.LastIndexOf('_') + 1);
-                                string newPath = $@"{dInfo.Parent.FullName}\{str}";
-
-                                if (Directory.Exists(newPath))
-                                {
-                                    if (dInfo.GetFileSystemInfos().Any())
-                                    {
-                                        string dest;
-
-                                        foreach (var item in dInfo.EnumerateFileSystemInfos())
-                                        {
-                                            if (item is DirectoryInfo dir)
-                                            {
-                                                dest = Path.Combine(newPath, dir.Name);
-                                                dir.MoveTo(dest);
-                                            }
-                                            else if (item is FileInfo file)
-                                            {
-                                                dest = Path.Combine(newPath, file.Name);
-                                                file.MoveTo(dest);
-                                            }
-                                        }
-                                    }
-
-                                    dInfo.Delete();
-                                }
-                                else
-                                    dInfo.MoveTo(newPath);
-
-                                dInfo.Refresh();
-
-                                string directoryName = newPath.Replace(backupPath, storagePath);
-
-                                if (!Directory.Exists(directoryName))
-                                {
-                                    Directory.CreateDirectory(directoryName);
-                                }
+                                Directory.Move(backupFile.DirectoryName, nameDir);
                             }
-                            else
-                            {
-                                var bFiles = dInfo.GetFiles("*.txt").OrderByDescending(x => x.Name);
-
-                                foreach (var bFile in bFiles)
-                                {
-                                    string temp = bFile.Name.Substring(0, bFile.Name.LastIndexOf('-'));
-                                    bool isParse = DateTime.TryParseExact(temp,
-                                                           "yyyy.MM.dd-HH.mm.ss",
-                                                           null,
-                                                           DateTimeStyles.None,
-                                                           out DateTime date);
-
-                                    if (isParse)
-                                    {
-                                        if (date <= DateTime)
-                                        {
-                                            temp = Path.GetFileNameWithoutExtension(bFile.Name);
-                                            temp = temp.Substring(temp.LastIndexOf('-') + 1);
-
-                                            string newFilePath = $@"{dInfo.Parent.FullName}\{temp}";
-
-                                            dInfo.MoveTo(newFilePath);
-
-                                            string sourceFileName = Path.Combine(newFilePath, bFile.Name);
-                                            string destFileName = newFilePath + ".txt";
-
-                                            destFileName = destFileName.Replace(backupPath, storagePath);
-                                            File.Copy(sourceFileName, destFileName, true);
-
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
+                            string fullName = $@"{file.DirectoryName}\{name}";
+                            file.MoveTo(fullName);
                         }
-                    }
                 }
             }
-            while (dInfo != null);
         }
     }
 }

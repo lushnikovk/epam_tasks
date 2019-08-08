@@ -5,112 +5,78 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Globalization;
 using System.IO;
+
 namespace task05
 {
-    class Logger
+    class Watcher
     {
-        public Logger()
-        {
-            logger();
+        public FileSystemWatcher watcher { get; protected set; }
+        public static string PathBackup { get; private set; } = $@"{Environment.CurrentDirectory}\Backup";
+        public static string PathStorage { get; private set; } = $@"{Environment.CurrentDirectory}\Storage";
+        public Watcher()
+            {
+                string pathStorage = $@"{Environment.CurrentDirectory}\STORAGE";    
+                FileSystemWatcher watcher = new FileSystemWatcher();
+                watcher.Path = pathStorage;
+                watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.LastAccess | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+                watcher.EnableRaisingEvents = true;
+                watcher.Filter = "*.*";
+                watcher.Deleted += OnDelete;
+                watcher.Renamed += OnRenamed;
+                watcher.Changed += Changed;
+            Console.WriteLine("Для завершения нажмите пробел");
+            change();
+            ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+            
+            while (keyInfo.Key !=  ConsoleKey.Spacebar);
         }
+        public Watcher(string pathStorage, string pathBackup)
+            {
+            PathBackup = pathBackup;
+          watcher = new FileSystemWatcher(pathStorage)
+            {
+                Filter = "*.*",
+                NotifyFilter = NotifyFilters.LastAccess
+                                 | NotifyFilters.LastWrite
+                                 | NotifyFilters.FileName
+                                 | NotifyFilters.DirectoryName,
+                IncludeSubdirectories = true
+            };
+            watcher.Deleted += OnDelete;
+            watcher.Renamed += OnRenamed;
+            watcher.Changed += Changed;
+        }
+            private static void change()
+            {
+                DateTime dt = DateTime.Now;
+                string pathDate = PathBackup + "\\" + dt.ToString().Replace(":", ".");
+                DirectoryInfo dirDate = new DirectoryInfo(pathDate);
+                dirDate.Create();
+                foreach (string dirPath in Directory.GetDirectories(PathStorage, "*", SearchOption.AllDirectories))
+                {
+                    Directory.CreateDirectory(dirPath.Replace(PathStorage, pathDate));
+                }
+                foreach (string filePath in Directory.GetFiles(PathStorage, "*.*", SearchOption.AllDirectories))
+                {
+                    File.Copy(filePath, filePath.Replace(PathStorage, pathDate), true);
+                }
+            }
+            private static void Changed(object temp, FileSystemEventArgs e)
+            {
+            change();
+            Console.WriteLine("Файл изменён  {0}, {1} ", e.Name, e.ChangeType);
+            }
 
-        private void logger()
-        {
-            DirectoryInfo directory = new DirectoryInfo($@"{Environment.CurrentDirectory}\Backup");
-            if (!directory.Exists)
-                directory.Create();
-            else
+            private static void OnRenamed(object temp, RenamedEventArgs e)
             {
-                directory.Delete(true);
-                directory.Create();
+            change();
+            Console.WriteLine("название файла изменено  {0}, {1} ", e.OldName, e.Name);
             }
-        }
-
-        public void SaveChangedOrCreatedFileLog(string dir, string fileName, DateTime date)
-        {
-            if (Path.GetExtension(fileName) == "")
+            private static void OnDelete(object temp, FileSystemEventArgs e)
             {
-                DirectoryInfo directory = new DirectoryInfo($@"{Environment.CurrentDirectory}\Backup" + $@"\{fileName}\");
-                if (!directory.Exists)
-                {
-                    directory.Create();
-                }
-            }
-            else
-            {
-                string Date = date.ToString("yyyy.MM.dd-HH.mm.ss");
-                string FileName = Path.GetFileNameWithoutExtension(fileName);
-                DirectoryInfo directory = new DirectoryInfo($@"{Environment.CurrentDirectory}\Backup" + $@"\{ FileName }\");
-                if (!directory.Exists)
-                {
-                    directory.Create();
-                }
-                string NewDir = directory.FullName + $@"{Date}-{Path.GetFileName(fileName)}";
-                try
-                {
-                    if (!File.Exists(NewDir))
-                        File.Copy(dir, NewDir);
-                }
-                catch
-                {
-                    return;
-                }
-            }
-        }
-        public void SaveRenamedFileLog(string newdir, string oldFileName, string newFileName, DateTime date)
-        {
-            if (Path.GetExtension(newFileName) == string.Empty)
-            {
-                DirectoryInfo directory = new DirectoryInfo($@"{Environment.CurrentDirectory}\Backup" + $@"\{oldFileName}\");
-                string Directory = $@"{Environment.CurrentDirectory}\Backup" + $@"\{newFileName}\";
-                if (directory.Exists)
-                {
-                    directory.MoveTo(Directory);
-                }
-            }
-            else
-            {
-                string Date = date.ToString("yyyy.MM.dd-HH.mm.ss");
-                string OldFileName = Path.GetFileNameWithoutExtension(oldFileName);
-                string NewFileName = Path.GetFileNameWithoutExtension(newFileName);
-                DirectoryInfo directory = new DirectoryInfo($@"{Environment.CurrentDirectory}\Backup" + $@"\{OldFileName}\");
-                string Directory = $@"{Environment.CurrentDirectory}\Backup" + $@"\{NewFileName}\";
-                if (directory.Exists)
-                {
-                    directory.MoveTo(Directory);
-                }
-                string newFileDir = Directory + $@"{Date}-{Path.GetFileName(newFileName)}";
-                DirectoryInfo newDir = new DirectoryInfo(newFileDir);
-                if (!newDir.Parent.Exists)
-                    newDir.Parent.Create();
-                if (!File.Exists(newFileDir))
-                    File.Copy(newdir, newFileDir);
-            }
-        }
-        public void SaveDeletedFileLog(string dir, string fileName, DateTime date)
-        {
-            string Date = date.ToString("yyyy.MM.dd-HH.mm.ss");
-            if (Path.GetExtension(fileName) == string.Empty)
-            {
-                DirectoryInfo directory = new DirectoryInfo($@"{Environment.CurrentDirectory}\Backup" + $@"\{fileName}\");
-                string destDirectory = $@"{Environment.CurrentDirectory}\Backup" + $@"\Deleted-{Date}-{fileName}\";
-                if (directory.Exists)
-                {
-                    directory.MoveTo(destDirectory);
-                }
-            }
-            else
-            {
-                string FileName = fileName.Replace(Path.GetExtension(fileName), "");
-                DirectoryInfo directory = new DirectoryInfo($@"{Environment.CurrentDirectory}\Backup" + $@"\{FileName}\");
-                string newDir = FileName.Replace(Path.GetFileNameWithoutExtension(fileName), "");
-                string newfolderDir = Path.GetFileNameWithoutExtension(fileName); ;
-                string Directory = $@"{Environment.CurrentDirectory}\Backup" + $@"{newDir}\Deleted-{date}-{newfolderDir}\";
-                if (directory.Exists)
-                {
-                    directory.MoveTo(Directory);
-                }
+            change();
+            Console.WriteLine("файл удалён");
             }
         }
     }
-}
+
